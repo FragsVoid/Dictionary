@@ -123,7 +123,7 @@ public class Dictionary implements Iterable<Entry> {
     public Object[] keys() {
         Object[] keys = new Object[size];
 
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < size; i++) {
             keys[i] = data[i].getKey();
         }
         return keys;
@@ -132,7 +132,7 @@ public class Dictionary implements Iterable<Entry> {
     public Object[] items() {
         Object[] values = new Object[size];
 
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < size; i++) {
             values[i] = data[i].getValue();
         }
         return values;
@@ -179,6 +179,21 @@ public class Dictionary implements Iterable<Entry> {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Dictionary dictionary) {
+            if (dictionary.len() == this.len()) {
+                for (Entry entry : this.data) {
+                    Object otherValue = dictionary.get(entry.getKey());
+                    if (!entry.getValue().equals(otherValue)) return false;
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
