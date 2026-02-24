@@ -1,6 +1,11 @@
 package collections;
 
-public class Dictionary {
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+
+public class Dictionary implements Iterable<Entry> {
 
 
     private Entry[] data;
@@ -15,6 +20,8 @@ public class Dictionary {
     }
 
     public boolean add(Object key, Object value) {
+        if (get(key) != null)
+            return false;
         if (size >= data.length) {
             Entry[] cloned = data.clone();
             data = new Entry[size + 20];
@@ -37,9 +44,14 @@ public class Dictionary {
             if (data[i].getKey().equals(key)) {
                 int numMoved = size - i - 1;
                 Object object = data[i].getValue();
+
                 if (numMoved > 0) {
                     System.arraycopy(data, i + 1, data, i, numMoved);
                 }
+
+                data[size] = null;
+                size--;
+
 
                 return object;
             }
@@ -57,13 +69,16 @@ public class Dictionary {
         }
 
         for (Entry entry : dictionary.data) {
+            if (entry == null) continue;
             add(entry);
         }
     }
 
     public boolean contains(Object key) {
-        for (Entry entry : data)
+        for (Entry entry : data) {
+            if (entry == null) continue;
             if (entry.getKey().equals(key)) return true;
+        }
         return false;
     }
 
@@ -81,6 +96,7 @@ public class Dictionary {
 
     public Object get(Object key) {
         for (Entry entry : data) {
+            if (entry == null) continue;
             if (entry.getKey().equals(key))
                 return entry.getValue();
         }
@@ -94,6 +110,7 @@ public class Dictionary {
         }
 
         for (Entry entry : data) {
+            if (entry == null) continue;
             if (entry.getKey().equals(key)) {
                 entry.setValue(value);
                 return true;
@@ -126,7 +143,7 @@ public class Dictionary {
     }
 
     public Entry popItem() {
-        Entry entry = data[size];
+        Entry entry = data[size-1];
         pop(entry.getKey());
         return entry;
     }
@@ -149,5 +166,38 @@ public class Dictionary {
         return new Dictionary(data);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (int i = 0; i < len(); i++) {
+            Entry entry = data[i];
+            sb.append(entry.toString());
+            if (i != size-1)
+                sb.append(", ");
+        }
+        sb.append("}");
 
+        return sb.toString();
+    }
+
+    @Override
+    public Iterator<Entry> iterator() {
+        return new Iterator<Entry>() {
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < size;
+            }
+
+            @Override
+            public Entry next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("No hay más elementos en el diccionario");
+                }
+                return data[currentIndex++];
+            }
+        };
+    }
 }
